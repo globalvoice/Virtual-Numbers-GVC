@@ -8,6 +8,18 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // --- START: CORS Proxy Configuration ---
+        proxy: {
+          // Any request from your frontend to '/api/...' will now be
+          // forwarded to 'https://api.didww.com/v3/...' by the Vite server.
+          '/api': {
+            target: 'https://api.didww.com/v3',
+            changeOrigin: true, // Essential for correctly handling virtual hosted APIs
+            rewrite: (path) => path.replace(/^\/api/, ''), // Removes the /api prefix before forwarding
+            secure: true, // The target is HTTPS
+          },
+        },
+        // --- END: CORS Proxy Configuration ---
       },
       plugins: [react()],
       define: {
