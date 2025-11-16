@@ -1,4 +1,4 @@
-import { Country, RequirementDetails, RequirementSection } from './types';
+import { Country, RequirementDetails, RequirementSection } from '../types';
 import { staticCountries } from './staticData';
 
 // A CORS proxy is required to bypass browser security restrictions when calling the DIDWW API directly from a web client.
@@ -7,11 +7,9 @@ const PROXY_URL = 'https://cors-proxy.fringe.zone/';
 const API_BASE_URL = `${PROXY_URL}https://api.didww.com/v3`;
 
 // Helper to fetch all pages from a paginated DIDWW API endpoint
-async function fetchAllPages(url: string): Promise<any[]> {
-    // Headers are constructed inside the function to ensure the latest API key is used
-    // after the user may have selected one via window.aistudio.openSelectKey().
+async function fetchAllPages(url: string, apiKey: string): Promise<any[]> {
     const headers = {
-      'Api-Key': process.env.API_KEY || '',
+      'Api-Key': apiKey,
       'Accept': 'application/vnd.api+json',
     };
 
@@ -19,14 +17,28 @@ async function fetchAllPages(url: string): Promise<any[]> {
     let nextUrl: string | null = `${url}${url.includes('?') ? '&' : '?'}page[size]=100`;
 
     while (nextUrl) {
+      try {
         const response = await fetch(nextUrl, { headers });
         if (!response.ok) {
+            // This is an actual error response from the API (e.g., 401 Unauthorized, 403 Forbidden)
             const errorText = await response.text();
-            throw new Error(`API call to ${response.url} failed with status ${response.status}: ${errorText}`);
+             // Provide a more specific error for auth issues.
+            if (response.status === 401 || response.status === 403) {
+                 throw new Error(`Authentication failed. Your API key might be invalid or lack the necessary permissions. Please check your key on the DIDWW dashboard.`);
+            }
+            throw new Error(`API call failed with status ${response.status}: ${errorText}`);
         }
         const json = await response.json();
         results = results.concat(json.data);
         nextUrl = json.links?.next || null;
+      } catch (error) {
+         // This catches network errors (e.g., CORS proxy is down, DNS issues)
+         if (error instanceof TypeError) {
+             throw new Error('A network error occurred. This might be due to the CORS proxy service being unavailable. Please try again later.');
+         }
+         // Re-throw other errors (like the specific auth error above)
+         throw error;
+      }
     }
     return results;
 }
@@ -39,14 +51,15 @@ export function fetchCountries(): { countries: Country[] } {
 }
 
 // This function now fetches requirements using the country's ISO code.
-export async function fetchRequirements(countryIso: string): Promise<RequirementDetails> {
-   if (!process.env.API_KEY) {
-    // This check is now mostly for cases where the key selection dialog fails or is bypassed.
-    throw new Error("API key is not configured.");
+// It accepts an optional API key to allow overriding the environment variable.
+export async function fetchRequirements(countryIso: string, apiKeyOverride?: string): Promise<RequirementDetails> {
+   const apiKey = apiKeyOverride || process.env.API_KEY;
+   
+   if (!apiKey) {
+    throw new Error("API key has not been provided or selected. Please provide your DIDWW API key to proceed.");
   }
-  // To fulfill the user's request of not fetching the main country list,
-  // we now filter requirements by the country's ISO code.
-  const requirementsData = await fetchAllPages(`${API_BASE_URL}/requirements?filter[country.iso]=${countryIso}`);
+  
+  const requirementsData = await fetchAllPages(`${API_BASE_URL}/requirements?filter[country.iso]=${countryIso}`, apiKey);
 
   if (requirementsData.length === 0) {
     return {
