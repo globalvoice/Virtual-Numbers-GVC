@@ -1,10 +1,9 @@
 import { Country, ApiRequirements } from '../types';
 import { staticCountries } from './staticData';
 
-// IMPORTANT: Replace with your actual DIDWW API key.
-// This key is for client-side demonstration purposes only. In a production environment,
-// this request should be made from a backend server to protect the key.
-const API_KEY = 'YOUR_DIDWW_API_KEY_HERE';
+// The API key is sourced from an environment variable for security.
+// In a production environment, this request should be made from a backend server to protect the key.
+const API_KEY = process.env.DIDWW_API_KEY;
 
 export function fetchCountries(): { countries: Country[] } {
   const sortedCountries = [...staticCountries].sort((a, b) => a.name.localeCompare(b.name));
@@ -16,8 +15,8 @@ export async function fetchRequirements(country: Country): Promise<ApiRequiremen
     throw new Error(`Regulatory information for ${country.name} is not available at this time.`);
   }
 
-  if (API_KEY === 'YOUR_DIDWW_API_KEY_HERE') {
-    throw new Error('API key is not configured. Please add your DIDWW API Key to services/api.ts.');
+  if (!API_KEY) {
+    throw new Error('DIDWW API key is not configured. Please ensure the DIDWW_API_KEY environment variable is set.');
   }
 
   const url = `https://api.didww.com/v3/requirements?filter[country.id]=${country.apiId}`;

@@ -5,7 +5,7 @@ import { Country } from '../types';
 // The 'apiId' is the UUID required by the DIDWW API to fetch requirements.
 export const staticCountries: Country[] = [
     { id: 'AL', iso: 'AL', name: 'Albania', needs_registration: true, local_national_price: 30.00, apiId: 'eae2225e-732e-4212-b547-7a64c47d887e' },
-    { id: 'AR', iso: 'AR', name: 'Argentina', needs_registration: true, local_national_price: 6.00 },
+    { id: 'AR', iso: 'AR', name: 'Argentina', needs_registration: true, local_national_price: 6.00, apiId: '6ca02513-d3a1-4875-98fd-e328027de867' },
     { id: 'AU', iso: 'AU', name: 'Australia', needs_registration: true, local_national_price: 5.00, mobile_price: 15.00 },
     { id: 'AT', iso: 'AT', name: 'Austria', needs_registration: true, local_national_price: 5.00 },
     { id: 'BE', iso: 'BE', name: 'Belgium', needs_registration: true, local_national_price: 5.00, mobile_price: 10.00 },
