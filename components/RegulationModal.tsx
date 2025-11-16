@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { RequirementDetails, RequirementSection } from '../types';
 import CloseIcon from './icons/CloseIcon';
 import Spinner from './Spinner';
@@ -11,44 +11,7 @@ interface RegulationModalProps {
   isLoading: boolean;
   error: string | null;
   onRetry: () => void;
-  isApiKeyNeeded: boolean;
-  onApiKeySubmit: (key: string) => void;
 }
-
-const ApiKeyForm: React.FC<{ onSubmit: (key: string) => void }> = ({ onSubmit }) => {
-  const [key, setKey] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(key);
-  };
-
-  return (
-    <div className="text-center bg-slate-800/50 p-6 rounded-lg">
-        <h3 className="text-xl font-semibold text-white mb-2">API Key Required</h3>
-        <p className="text-gray-400 mb-4">
-            To fetch regulatory requirements, please enter your DIDWW API key. You can create a key in your <a href="https://my.didww.com/v3/developers/api_keys" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline">DIDWW dashboard</a>.
-        </p>
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2">
-            <input 
-                type="password"
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                placeholder="Enter your API key"
-                className="flex-grow w-full bg-slate-900 text-white border border-slate-700 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
-                required
-            />
-            <button
-                type="submit"
-                className="w-full sm:w-auto bg-orange-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500"
-            >
-                Submit
-            </button>
-        </form>
-    </div>
-  );
-};
-
 
 const RequirementSectionDisplay: React.FC<{ section: RequirementSection | null; title: string }> = ({ section, title }) => {
   if (!section || section.fields.length === 0) return null;
@@ -68,7 +31,7 @@ const RequirementSectionDisplay: React.FC<{ section: RequirementSection | null; 
   );
 };
 
-const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, countryName, requirements, isLoading, error, onRetry, isApiKeyNeeded, onApiKeySubmit }) => {
+const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, countryName, requirements, isLoading, error, onRetry }) => {
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -83,7 +46,7 @@ const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, coun
 
   if (!isOpen) return null;
 
-  const showContent = !isLoading && !error && !isApiKeyNeeded;
+  const showContent = !isLoading && !error && requirements;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 transition-opacity" onClick={onClose}>
@@ -104,7 +67,6 @@ const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, coun
                 <Spinner />
              </div>
           )}
-          {isApiKeyNeeded && !isLoading && <ApiKeyForm onSubmit={onApiKeySubmit} />}
           {error && (
             <div className="text-center text-red-400 bg-red-900/20 p-4 rounded-lg flex flex-col items-center gap-4">
               <span>{error}</span>
@@ -117,7 +79,7 @@ const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, coun
             </div>
           )}
           
-          {showContent && requirements && (
+          {showContent && (
             <div>
               <p className="text-gray-300 mb-4">{requirements.description}</p>
               
