@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Country, RequirementDetails } from './types';
+import { Country, ApiRequirements } from './types';
 import { fetchCountries, fetchRequirements } from './services/api';
 import Header from './components/Header';
 import RegulationModal from './components/RegulationModal';
@@ -10,7 +10,7 @@ const App: React.FC = () => {
   
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [regulationDetails, setRegulationDetails] = useState<RequirementDetails | null>(null);
+  const [regulationDetails, setRegulationDetails] = useState<ApiRequirements | null>(null);
   const [isModalLoading, setIsModalLoading] = useState<boolean>(false);
   const [modalError, setModalError] = useState<string | null>(null);
   
@@ -20,7 +20,7 @@ const App: React.FC = () => {
     setRegulationDetails(null);
 
     try {
-      const details = await fetchRequirements(country.iso);
+      const details = await fetchRequirements(country);
       setRegulationDetails(details);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';

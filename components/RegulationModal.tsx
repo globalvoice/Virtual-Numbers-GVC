@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { RequirementDetails, RequirementSection } from '../types';
+import { ApiRequirements } from '../types';
 import CloseIcon from './icons/CloseIcon';
 import Spinner from './Spinner';
 
@@ -7,29 +7,11 @@ interface RegulationModalProps {
   isOpen: boolean;
   onClose: () => void;
   countryName: string;
-  requirements: RequirementDetails | null;
+  requirements: ApiRequirements | null;
   isLoading: boolean;
   error: string | null;
   onRetry: () => void;
 }
-
-const RequirementSectionDisplay: React.FC<{ section: RequirementSection | null; title: string }> = ({ section, title }) => {
-  if (!section || section.fields.length === 0) return null;
-
-  return (
-    <div className="mt-4">
-      <h4 className="text-lg font-semibold text-orange-400 mb-2">{title}</h4>
-      {section.description && <p className="text-sm text-gray-400 mb-3">{section.description}</p>}
-      <ul className="list-disc list-inside space-y-1 pl-2 text-gray-300">
-        {section.fields.map((field, index) => (
-          <li key={index}>
-            <span className="font-medium text-white">{field.name}</span>: <span className="text-gray-400">{field.description}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
 
 const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, countryName, requirements, isLoading, error, onRetry }) => {
   useEffect(() => {
@@ -47,6 +29,7 @@ const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, coun
   if (!isOpen) return null;
 
   const showContent = !isLoading && !error && requirements;
+  const noRequirementsFound = showContent && requirements && requirements.length === 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 transition-opacity" onClick={onClose}>
@@ -79,26 +62,33 @@ const RegulationModal: React.FC<RegulationModalProps> = ({ isOpen, onClose, coun
             </div>
           )}
           
-          {showContent && (
-            <div>
-              <p className="text-gray-300 mb-4">{requirements.description}</p>
-              
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <h3 className="text-xl font-bold text-white mb-3 border-b border-slate-600 pb-2">Business Users</h3>
-                <RequirementSectionDisplay section={requirements.identity_requirements.business} title="Identity Verification" />
-                <RequirementSectionDisplay section={requirements.address_requirements.business} title="Address Verification" />
-              </div>
+          {noRequirementsFound && (
+             <div className="text-center text-gray-400 bg-slate-800/50 p-4 rounded-lg">
+                No specific registration documents are required for this country, but basic end-user information must be provided.
+             </div>
+          )}
 
-              <div className="bg-slate-800/50 p-4 rounded-lg mt-4">
-                <h3 className="text-xl font-bold text-white mb-3 border-b border-slate-600 pb-2">Individual Users</h3>
-                <RequirementSectionDisplay section={requirements.identity_requirements.individual} title="Identity Verification" />
-                <RequirementSectionDisplay section={requirements.address_requirements.individual} title="Address Verification" />
-              </div>
-
+          {showContent && requirements && requirements.length > 0 && (
+            <div className="space-y-6">
+              {requirements.map((req, index) => (
+                <div key={index} className="bg-slate-800/50 p-4 rounded-lg">
+                  <h3 className="text-xl font-bold text-orange-400 mb-3">{req.requirementType}</h3>
+                  <div
+                    className="text-gray-300 space-y-2 prose-didww"
+                    dangerouslySetInnerHTML={{ __html: req.htmlContent }}
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
+       <style>{`
+        .prose-didww b {
+          color: #f1f5f9; 
+          font-weight: 600;
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,9 +1,10 @@
-import { Country } from './types';
+import { Country } from '../types';
 
 // This static data replaces the live API call for the country list,
 // making the initial application load instant and removing the source of network errors.
+// The 'apiId' is the UUID required by the DIDWW API to fetch requirements.
 export const staticCountries: Country[] = [
-    { id: 'AL', iso: 'AL', name: 'Albania', needs_registration: true, local_national_price: 30.00 },
+    { id: 'AL', iso: 'AL', name: 'Albania', needs_registration: true, local_national_price: 30.00, apiId: 'eae2225e-732e-4212-b547-7a64c47d887e' },
     { id: 'AR', iso: 'AR', name: 'Argentina', needs_registration: true, local_national_price: 6.00 },
     { id: 'AU', iso: 'AU', name: 'Australia', needs_registration: true, local_national_price: 5.00, mobile_price: 15.00 },
     { id: 'AT', iso: 'AT', name: 'Austria', needs_registration: true, local_national_price: 5.00 },
@@ -16,7 +17,7 @@ export const staticCountries: Country[] = [
     { id: 'CL', iso: 'CL', name: 'Chile', needs_registration: true, local_national_price: 8.00, mobile_price: 10.00 },
     { id: 'CN', iso: 'CN', name: 'China', needs_registration: true, local_national_price: 20.00 },
     { id: 'CO', iso: 'CO', name: 'Colombia', needs_registration: true, mobile_needs_registration: false, local_national_price: 20.00, mobile_price: 20.00 },
-    { id: 'CR', iso: 'CR', name: 'Costa Rica', needs_registration: true, local_national_price: 15.00 },
+    { id: 'CR', iso: 'CR', name: 'Costa Rica', needs_registration: true, local_national_price: 15.00, apiId: '2258abe9-ddc4-45b8-9385-44bac01a4037' },
     { id: 'HR', iso: 'HR', name: 'Croatia', needs_registration: true, local_national_price: 5.00 },
     { id: 'CY', iso: 'CY', name: 'Cyprus', needs_registration: true, local_national_price: 9.00 },
     { id: 'CZ', iso: 'CZ', name: 'Czech Republic', needs_registration: true, local_national_price: 5.00 },
@@ -32,7 +33,7 @@ export const staticCountries: Country[] = [
     { id: 'GR', iso: 'GR', name: 'Greece', needs_registration: true, local_national_price: 5.00 },
     { id: 'GT', iso: 'GT', name: 'Guatemala', needs_registration: false, local_national_price: 15.00 },
     { id: 'HN', iso: 'HN', name: 'Honduras', needs_registration: true, local_national_price: 35.00 },
-    { id: 'HK', iso: 'HK', name: 'Hong Kong', needs_registration: true, local_national_price: 15.00 },
+    { id: 'HK', iso: 'HK', name: 'Hong Kong', needs_registration: true, local_national_price: 15.00, apiId: '9d72aa39-9510-4d8c-ab41-28ee3d79df3a' },
     { id: 'HU', iso: 'HU', name: 'Hungary', needs_registration: true, local_national_price: 8.00 },
     { id: 'IS', iso: 'IS', name: 'Iceland', needs_registration: false, local_national_price: 10.00 },
     { id: 'ID', iso: 'ID', name: 'Indonesia', needs_registration: true, local_national_price: 38.00 },
