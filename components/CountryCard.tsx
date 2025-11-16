@@ -7,7 +7,6 @@ interface CountryCardProps {
 }
 
 const CountryCard: React.FC<CountryCardProps> = ({ country, onViewRequirements }) => {
-  const hasPricing = country.local_national_price !== undefined || country.mobile_price !== undefined;
   const anyRegistrationNeeded = country.needs_registration || country.mobile_needs_registration === true;
 
   return (
@@ -24,27 +23,10 @@ const CountryCard: React.FC<CountryCardProps> = ({ country, onViewRequirements }
       </div>
       
       <div className="flex-grow w-full mb-4 text-sm space-y-2">
-        {hasPricing ? (
-          <>
-            <p className="font-semibold text-gray-300">No Tier MRC (DID+2):</p>
-            {country.local_national_price !== undefined && (
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Local/National</span>
-                <span className="font-bold text-white">${country.local_national_price.toFixed(2)}</span>
-              </div>
-            )}
-            {country.mobile_price !== undefined && (
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Mobile</span>
-                <span className="font-bold text-white">${country.mobile_price.toFixed(2)}</span>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-500 italic">
-            Pricing not available
-          </div>
-        )}
+        <div className="flex justify-between items-center">
+          <span className="text-gray-400">No Tier MRC (DID+2)</span>
+          <span className="font-bold text-white text-lg">${country.local_national_price!.toFixed(2)}</span>
+        </div>
       </div>
 
       <div className="mt-auto pt-4 w-full border-t border-slate-700">

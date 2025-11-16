@@ -5,16 +5,14 @@ import Header from './components/Header';
 import RegulationModal from './components/RegulationModal';
 import VirtualNumbers from './components/VirtualNumbers';
 
-// Fix: Define `AIStudio` inside `declare global` to prevent module-scope conflicts
-// and ensure a single definition is used across the application.
+// Fix: Inlined the `AIStudio` interface within the `Window` interface declaration to resolve a TypeScript error.
+// This ensures `window.aistudio` is correctly typed across the application without declaration conflicts.
 declare global {
-  interface AIStudio {
-    hasSelectedApiKey: () => Promise<boolean>;
-    openSelectKey: () => Promise<void>;
-  }
-
   interface Window {
-    aistudio: AIStudio;
+    aistudio: {
+      hasSelectedApiKey: () => Promise<boolean>;
+      openSelectKey: () => Promise<void>;
+    };
   }
 }
 
