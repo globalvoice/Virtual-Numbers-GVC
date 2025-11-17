@@ -1,6 +1,13 @@
 import { Country, ApiRequirements } from '../types';
 import { staticCountries } from './staticData';
 
+// --- FIX: Use conditional base URL to handle both dev and deployed environments. ---
+// In a Vite dev environment (process.env.NODE_ENV is typically 'development'),
+// we use the local proxy path '/api'.
+// In a deployed environment, we must use the full external URL.
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const DIDWW_BASE_URL = isDevelopment ? '/api' : 'https://api.didww.com/v3';
+
 // The API key is sourced from an environment variable for security.
 // It will first look for DIDWW_API_KEY, and fall back to API_KEY for flexibility.
 // In a production environment, this request should be made from a backend server to protect the key.
@@ -22,12 +29,17 @@ export async function fetchRequirements(country: Country): Promise<ApiRequiremen
   // This makes the app more resilient to incomplete static data.
   if (!countryApiId) {
     try {
-      const countryUrl = `https://api.didww.com/v3/countries?filter[iso]=${country.iso}`;
+      // --- FIX: Added 'cache: "no-store"' to force the network request and bypass potential Service Worker interference.
+      const countryUrl = `${DIDWW_BASE_URL}/countries?filter[iso]=${country.iso}`;
       const countryResponse = await fetch(countryUrl, {
+        method: 'GET', // Explicitly setting GET method
         headers: { 'Api-Key': API_KEY, 'Accept': 'application/vnd.api+json' },
+        cache: 'no-store',
       });
 
       if (!countryResponse.ok) {
+        // Logging the full URL and status for better debugging
+        console.error(`Failed request URL: ${countryResponse.url}`);
         throw new Error(`API request to fetch country ID failed with status ${countryResponse.status}.`);
       }
 
@@ -44,13 +56,15 @@ export async function fetchRequirements(country: Country): Promise<ApiRequiremen
   }
 
   // Now we have the countryApiId, proceed to fetch requirements.
-  const url = `https://api.didww.com/v3/requirements?filter[country.id]=${countryApiId}`;
+  const url = `${DIDWW_BASE_URL}/requirements?filter[country.id]=${countryApiId}`;
 
   const response = await fetch(url, {
+    method: 'GET', // Explicitly setting GET method
     headers: {
       'Api-Key': API_KEY,
       'Accept': 'application/vnd.api+json',
     },
+    cache: 'no-store', // --- FIX: Added 'cache: "no-store"'
   });
 
   if (!response.ok) {
@@ -64,7 +78,7 @@ export async function fetchRequirements(country: Country): Promise<ApiRequiremen
   if (!json.data || json.data.length === 0) {
     // This case can happen if a country is marked as needs_registration,
     // but the API returns no specific requirements for the available number types.
-    return []; 
+    return [];
   }
 
   // Parse the response to create a structured object for the modal
@@ -72,7 +86,7 @@ export async function fetchRequirements(country: Country): Promise<ApiRequiremen
     const message = req.attributes.restriction_message;
     const typeMatch = message.match(/<b>(.*? (National|Local|Toll-free)) DID/i);
     const requirementType = typeMatch ? typeMatch[1] : 'General';
-    
+
     // Clean up the message for better presentation
     const cleanedMessage = message.replace(/<br>\s*\r\n/g, '').replace(/\r\n/g, '<br />');
 
